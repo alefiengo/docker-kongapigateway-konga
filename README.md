@@ -111,36 +111,21 @@ En la primera visita, Konga solicitará crear una cuenta de administrador. Compl
 - Correo electrónico
 - Contraseña segura
 
-<div align="center">
-  <img src="signin.png" alt="Formulario de registro de usuario en Konga" width="600"/>
-  <p><em>Figura 1: Registro de usuario administrador</em></p>
-</div>
-
 #### 3. Autenticación
 
 Iniciar sesión con las credenciales creadas en el paso anterior.
 
-<div align="center">
-  <img src="login.png" alt="Pantalla de inicio de sesión de Konga" width="600"/>
-  <p><em>Figura 2: Pantalla de autenticación</em></p>
-</div>
-
 #### 4. Configurar conexión con Kong Gateway
 
-Después de autenticarse, configurar la conexión entre Konga y Kong:
+Después de autenticarse, configurar la conexión entre Konga y Kong en la sección **"Connections"**:
 
 **Parámetros de conexión:**
 - **Name**: `Kong Local` (o cualquier identificador descriptivo)
 - **Kong Admin URL**: `http://kong:8001`
 
-  > **Importante**: Usar `http://kong:8001` (nombre del servicio) en lugar de `http://localhost:8001`, ya que Konga se ejecuta dentro de la red Docker y debe acceder a Kong mediante el nombre del servicio.
+> **Importante**: Usar `http://kong:8001` (nombre del servicio) en lugar de `http://localhost:8001`, ya que Konga se ejecuta dentro de la red Docker y debe acceder a Kong mediante el nombre del servicio.
 
 Hacer clic en **"Create Connection"** para establecer la conexión.
-
-<div align="center">
-  <img src="config.png" alt="Configuración de conexión entre Konga y Kong" width="600"/>
-  <p><em>Figura 3: Configuración de conexión a Kong Admin API</em></p>
-</div>
 
 Una vez completados estos pasos, Konga estará listo para administrar Kong Gateway.
 
