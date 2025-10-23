@@ -1,0 +1,123 @@
+# docker-compose.prod.yml
+# Configuración adicional para entornos de producción
+# Uso: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+name: ${COMPOSE_PROJECT_NAME:-kong-oss-stack}
+
+services:
+  kong-database:
+    # No exponer PostgreSQL en producción
+    ports: []
+    # Aumentar recursos para producción
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '1.0'
+          memory: 512M
+    # Política de reinicio más agresiva
+    restart: always
+    # Configuración adicional de PostgreSQL para producción
+    environment:
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=en_US.UTF-8"
+      POSTGRES_HOST_AUTH_METHOD: md5
+    # Healthcheck más frecuente
+    healthcheck:
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kong:
+    # Solo exponer proxy en producción
+    ports:
+      - "${KONG_PROXY_PORT:-8000}:8000"
+      - "${KONG_PROXY_SSL_PORT:-8443}:8443"
+      # Admin API solo en localhost o no expuesto
+      - "${KONG_ADMIN_HOST:-127.0.0.1}:${KONG_ADMIN_PORT:-8001}:8001"
+    # Recursos incrementados para producción
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+      # Configuración de deployment
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    # Variables de entorno específicas de producción
+    environment:
+      # Logging más conservador
+      KONG_LOG_LEVEL: ${KONG_LOG_LEVEL:-notice}
+      # Deshabilitar Dev Portal
+      KONG_PORTAL: "off"
+      # Configuración de proxy cache
+      KONG_PROXY_CACHE: "on"
+      # Configuración de seguridad
+      KONG_REAL_IP_HEADER: "X-Forwarded-For"
+      KONG_REAL_IP_RECURSIVE: "on"
+      KONG_TRUSTED_IPS: "${KONG_TRUSTED_IPS:-0.0.0.0/0,::/0}"
+      # Nginx optimizations
+      KONG_NGINX_WORKER_PROCESSES: "${KONG_NGINX_WORKER_PROCESSES:-auto}"
+      KONG_NGINX_HTTP_CLIENT_BODY_BUFFER_SIZE: "128k"
+      KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE: "10m"
+    # Healthcheck más estricto
+    healthcheck:
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+
+  konga:
+    # Exponer solo en localhost o no exponer
+    ports:
+      - "${KONGA_HOST:-127.0.0.1}:${KONGA_PORT:-1337}:1337"
+    # Recursos para producción
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 768M
+        reservations:
+          cpus: '0.5'
+          memory: 384M
+    # Configuración de producción
+    environment:
+      NODE_ENV: production
+      # Deshabilitar registro público
+      KONGA_ALLOW_SIGNUP: ${KONGA_ALLOW_SIGNUP:-false}
+      # Log level
+      KONGA_LOG_LEVEL: ${KONGA_LOG_LEVEL:-warn}
+    # Healthcheck ajustado
+    healthcheck:
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 90s
+
+# Configuración de red para producción
+networks:
+  kong-net:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: kong-net
+    ipam:
+      driver: default
+      config:
+        - subnet: ${KONG_NETWORK_SUBNET:-172.28.0.0/16}
+
+# Configuración de volúmenes para producción
+volumes:
+  kong_db_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${KONG_DB_DATA_PATH:-./data/postgres}

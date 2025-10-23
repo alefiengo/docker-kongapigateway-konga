@@ -1,0 +1,93 @@
+_format_version: "3.0"
+
+# Ejemplo de configuración declarativa de Kong con decK
+# Uso: deck sync -s examples/deck-config.yaml
+
+services:
+  - name: httpbin-service
+    url: https://httpbin.org
+    protocol: https
+    host: httpbin.org
+    port: 443
+    path: /
+    retries: 5
+    connect_timeout: 60000
+    write_timeout: 60000
+    read_timeout: 60000
+
+    routes:
+      - name: httpbin-route
+        paths:
+          - /httpbin
+        strip_path: true
+        protocols:
+          - http
+          - https
+        methods:
+          - GET
+          - POST
+
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          hour: 10000
+          policy: local
+
+      - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Authorization
+            - Content-Type
+          exposed_headers:
+            - X-Auth-Token
+          credentials: true
+          max_age: 3600
+
+  - name: jsonplaceholder-service
+    url: https://jsonplaceholder.typicode.com
+    protocol: https
+    host: jsonplaceholder.typicode.com
+    port: 443
+
+    routes:
+      - name: jsonplaceholder-route
+        paths:
+          - /api/posts
+        strip_path: true
+        protocols:
+          - http
+          - https
+
+    plugins:
+      - name: request-transformer
+        config:
+          add:
+            headers:
+              - X-Service-Name:jsonplaceholder
+
+consumers:
+  - username: demo-user
+    custom_id: demo-001
+
+    keyauth_credentials:
+      - key: demo-api-key-12345
+
+plugins:
+  - name: prometheus
+    config:
+      per_consumer: true
+
+  - name: request-size-limiting
+    config:
+      allowed_payload_size: 10
+      size_unit: megabytes

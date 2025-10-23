@@ -1,1 +1,98 @@
-data
+# Persisted data volumes or bind mounts
+data/
+kong_db_data/
+postgres_data/
+
+# Backups
+backups/
+*.sql
+*.sql.gz
+*.dump
+
+# Local environment overrides (keep templates like .env.example)
+.env
+.env.*
+!.env.example
+
+# Compose overrides and runtime artefacts
+docker-compose.override.yml
+*.log
+*.pid
+
+# Logs
+logs/
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.swp
+*.swo
+*~
+
+# Editor and OS files
+.DS_Store
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.project
+.settings/
+.classpath
+
+# SSL certificates (si decides generarlos localmente)
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.pfx
+certs/
+!examples/certs/
+
+# Kong specific
+kong.conf
+kong.yml
+kong-*.conf
+
+# Node modules (si extiendes Konga)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Python (si usas scripts Python)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# Terraform (si usas IaC)
+*.tfstate
+*.tfstate.backup
+.terraform/
+
+# Ansible (si usas automation)
+*.retry
+
+# Coverage reports
+coverage/
+*.cover
+.coverage
+.coverage.*
+
+# Documentation builds
+docs/_build/
+site/
+
+# Testing
+.pytest_cache/
+.tox/
+
+# Claude Code
+CLAUDE.md
