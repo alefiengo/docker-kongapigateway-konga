@@ -117,15 +117,45 @@ Iniciar sesión con las credenciales creadas en el paso anterior.
 
 #### 4. Configurar conexión con Kong Gateway
 
-Después de autenticarse, configurar la conexión entre Konga y Kong en la sección **"Connections"**:
+Después de autenticarse exitosamente, Konga solicitará crear una conexión con Kong:
 
-**Parámetros de conexión:**
-- **Name**: `Kong Local` (o cualquier identificador descriptivo)
-- **Kong Admin URL**: `http://kong:8001`
+**Paso a paso:**
 
-> **Importante**: Usar `http://kong:8001` (nombre del servicio) en lugar de `http://localhost:8001`, ya que Konga se ejecuta dentro de la red Docker y debe acceder a Kong mediante el nombre del servicio.
+1. En la pantalla de bienvenida, hacer clic en **"Create Connection"** o navegar a **"Connections"** en el menú lateral
 
-Hacer clic en **"Create Connection"** para establecer la conexión.
+2. Completar el formulario de conexión con los siguientes datos:
+
+   | Campo | Valor | Descripción |
+   |-------|-------|-------------|
+   | **Name** | `Kong Local` | Nombre descriptivo para identificar esta conexión |
+   | **Kong Admin URL** | `http://kong:8001` | URL del Admin API de Kong |
+
+3. **Importante**: Usar `http://kong:8001` (nombre del servicio) en lugar de `http://localhost:8001`, ya que Konga se ejecuta dentro de la red Docker y debe acceder a Kong mediante el nombre del servicio interno.
+
+4. Hacer clic en **"Create Connection"**
+
+5. Una vez creada, hacer clic en **"Activate"** o seleccionar la conexión para comenzar a administrar Kong
+
+**Verificación:**
+
+Tras activar la conexión, deberías ver el dashboard de Konga mostrando:
+- Información general de Kong (versión, uptime)
+- Número de servicios, rutas, consumidores y plugins configurados
+- Menú lateral con opciones: Services, Routes, Consumers, Plugins, etc.
+
+**Solución de problemas:**
+
+Si la conexión falla:
+```bash
+# Verificar que Kong esté respondiendo
+curl http://localhost:8001
+
+# Ver logs de Kong
+make logs-kong
+
+# Ver logs de Konga
+make logs-konga
+```
 
 Una vez completados estos pasos, Konga estará listo para administrar Kong Gateway.
 
